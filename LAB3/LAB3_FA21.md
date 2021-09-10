@@ -265,9 +265,29 @@ head(met2)
 
 ``` r
 #make the temperature reasonable (temp > -15C)
-met <- met[temp>-15]
-met2 <- met[order(temp)]
-head(met2)
+met <- met[temp>-15][order(temp)]
+summary(met[, .(lat, lon, wind.sp, temp, elev)])
+```
+
+    ##       lat             lon             wind.sp            temp      
+    ##  Min.   :24.55   Min.   :-124.29   Min.   : 0.000   Min.   :-3.00  
+    ##  1st Qu.:33.98   1st Qu.: -98.02   1st Qu.: 0.000   1st Qu.:19.60  
+    ##  Median :38.37   Median : -91.74   Median : 2.100   Median :23.50  
+    ##  Mean   :37.97   Mean   : -92.14   Mean   : 2.462   Mean   :23.59  
+    ##  3rd Qu.:41.96   3rd Qu.: -82.99   3rd Qu.: 3.600   3rd Qu.:27.80  
+    ##  Max.   :48.94   Max.   : -68.31   Max.   :36.000   Max.   :56.00  
+    ##                                    NA's   :31582                   
+    ##       elev       
+    ##  Min.   : -13.0  
+    ##  1st Qu.: 101.0  
+    ##  Median : 252.0  
+    ##  Mean   : 414.3  
+    ##  3rd Qu.: 400.0  
+    ##  Max.   :4113.0  
+    ## 
+
+``` r
+head(met)
 ```
 
     ##    USAFID  WBAN year month day hour min    lat      lon elev wind.dir
@@ -363,3 +383,45 @@ summary(elev)
     ##                     3rd Qu.:1010   3rd Qu.:1     3rd Qu.:16.58  
     ##                     Max.   :1011   Max.   :1     Max.   :22.25  
     ## 
+
+correlation between temperature and wind speed
+
+``` r
+cor(elev$temp, elev$wind.sp, use="complete")
+```
+
+    ## [1] -0.3318348
+
+correlation between temperature and hours
+
+``` r
+cor(elev$temp, elev$hour, use="complete")
+```
+
+    ## [1] 0.7302148
+
+correlation between wind speed and day
+
+``` r
+cor(elev$wind.sp, elev$day, use="complete")
+```
+
+    ## [1] -0.7412098
+
+correlation between wind speed and hour
+
+``` r
+cor(elev$wind.sp, elev$hour, use="complete")
+```
+
+    ## [1] -0.8021375
+
+correlation between temperature and day
+
+``` r
+cor(elev$temp, elev$day, use="complete")
+```
+
+    ## [1] 0.8284796
+
+## Step 7 Exploratory Graphs
