@@ -171,11 +171,6 @@ pre code {
 </div>
 
 
-<div id="r-markdown" class="section level2">
-<h2>R Markdown</h2>
-<p>This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <a href="http://rmarkdown.rstudio.com" class="uri">http://rmarkdown.rstudio.com</a>.</p>
-<p>When you click the <strong>Knit</strong> button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:</p>
-</div>
 <div id="library-data.table" class="section level2">
 <h2>Library data.table</h2>
 <p>#Install if and only if it’s not present</p>
@@ -338,6 +333,41 @@ met[met$elev==9999.0] &lt;- NA
 summary(met$elev)</code></pre>
 <pre><code>##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA&#39;s 
 ##     -13     101     252     413     400    4113     710</code></pre>
+<pre class="r"><code>#remove temperature of -40C
+met &lt;- met[temp&gt;-40]
+met2 &lt;- met[order(temp)]
+head(met2)</code></pre>
+<pre><code>##    USAFID WBAN year month day hour min    lat    lon elev wind.dir wind.dir.qc
+## 1: 722817 3068 2019     8   1    0  56 38.767 -104.3 1838      190           5
+## 2: 722817 3068 2019     8   1    1  56 38.767 -104.3 1838      180           5
+## 3: 722817 3068 2019     8   3   11  56 38.767 -104.3 1838       NA           9
+## 4: 722817 3068 2019     8   3   12  56 38.767 -104.3 1838       NA           9
+## 5: 722817 3068 2019     8   6   21  56 38.767 -104.3 1838      280           5
+## 6: 722817 3068 2019     8   6   22  56 38.767 -104.3 1838      240           5
+##    wind.type.code wind.sp wind.sp.qc ceiling.ht ceiling.ht.qc ceiling.ht.method
+## 1:              N     7.2          5         NA             9                 9
+## 2:              N     7.7          5         NA             9                 9
+## 3:              C     0.0          5         NA             9                 9
+## 4:              C     0.0          5         NA             9                 9
+## 5:              N     2.6          5         NA             9                 9
+## 6:              N     7.7          5         NA             9                 9
+##    sky.cond vis.dist vis.dist.qc vis.var vis.var.qc  temp temp.qc dew.point
+## 1:        N       NA           9       N          5 -17.2       5        NA
+## 2:        N       NA           9       N          5 -17.2       5        NA
+## 3:        N       NA           9       N          5 -17.2       5        NA
+## 4:        N       NA           9       N          5 -17.2       5        NA
+## 5:        N       NA           9       N          5 -17.2       5        NA
+## 6:        N       NA           9       N          5 -17.2       5        NA
+##    dew.point.qc atm.press atm.press.qc rh
+## 1:            9        NA            9 NA
+## 2:            9        NA            9 NA
+## 3:            9        NA            9 NA
+## 4:            9        NA            9 NA
+## 5:            9        NA            9 NA
+## 6:            9        NA            9 NA</code></pre>
+</div>
+<div id="step-5-check-the-data-against-an-external-data-source" class="section level2">
+<h2>Step 5 Check the data against an external data source</h2>
 </div>
 
 

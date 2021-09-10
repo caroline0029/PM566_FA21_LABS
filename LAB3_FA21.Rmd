@@ -9,12 +9,6 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
-
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
 ## Library data.table
 #Install if and only if it's not present
 ```{r}
@@ -38,23 +32,23 @@ met <- data.table::fread("met_all.gz")
 ```
 
 ## Step 2 Check the dimensions, headers, footers, rows and columns 
-#Dimensions
+Dimensions
 ```{r}
 dim(met)
 ```
-#Headers
+Headers
 ```{r}
 head(met)
 ```
-#Footers
+Footers
 ```{r}
 tail(met)
 ```
-#Rows
+Rows
 ```{r}
 nrow(met)
 ```
-#Columns
+Columns
 ```{r}
 ncol(met)
 ```
@@ -76,13 +70,34 @@ table(met$hour)
 summary(met$temp)
 
 summary(met$elev)
-
-#replace 9999.0 with NA
-met[met$elev==9999.0] <- NA
-summary(met$elev)
-
-
 ```
 
+update NAs in elevation
+```{r}
+met[met$elev==9999.0] <- NA
+summary(met$elev)
+```
+
+remove temperature of -40C
+```{r}
+met <- met[temp>-40]
+met2 <- met[order(temp)]
+head(met2)
+```
+
+## Step 5 Check the data against an external data source
+```{r}
+#make the temperature reasonable (temp > -15C)
+met <- met[temp>-15]
+met2 <- met[order(temp)]
+head(met2)
+```
+
+## Step 6 Calculate summary statistics
+```{r}
+#select station with minimum elevation
+elev <- met[elev==min(elev)]
+summary(elev)
+```
 
 
