@@ -369,9 +369,25 @@ head(met2)</code></pre>
 <div id="step-5-check-the-data-against-an-external-data-source" class="section level2">
 <h2>Step 5 Check the data against an external data source</h2>
 <pre class="r"><code>#make the temperature reasonable (temp &gt; -15C)
-met &lt;- met[temp&gt;-15]
-met2 &lt;- met[order(temp)]
-head(met2)</code></pre>
+met &lt;- met[temp&gt;-15][order(temp)]
+summary(met[, .(lat, lon, wind.sp, temp, elev)])</code></pre>
+<pre><code>##       lat             lon             wind.sp            temp      
+##  Min.   :24.55   Min.   :-124.29   Min.   : 0.000   Min.   :-3.00  
+##  1st Qu.:33.98   1st Qu.: -98.02   1st Qu.: 0.000   1st Qu.:19.60  
+##  Median :38.37   Median : -91.74   Median : 2.100   Median :23.50  
+##  Mean   :37.97   Mean   : -92.14   Mean   : 2.462   Mean   :23.59  
+##  3rd Qu.:41.96   3rd Qu.: -82.99   3rd Qu.: 3.600   3rd Qu.:27.80  
+##  Max.   :48.94   Max.   : -68.31   Max.   :36.000   Max.   :56.00  
+##                                    NA&#39;s   :31582                   
+##       elev       
+##  Min.   : -13.0  
+##  1st Qu.: 101.0  
+##  Median : 252.0  
+##  Mean   : 414.3  
+##  3rd Qu.: 400.0  
+##  Max.   :4113.0  
+## </code></pre>
+<pre class="r"><code>head(met)</code></pre>
 <pre><code>##    USAFID  WBAN year month day hour min    lat      lon elev wind.dir
 ## 1: 726764 94163 2019     8  27   11  50 44.683 -111.116 2025       NA
 ## 2: 726764 94163 2019     8  27   12  10 44.683 -111.116 2025       NA
@@ -462,6 +478,24 @@ summary(elev)</code></pre>
 ##                     3rd Qu.:1010   3rd Qu.:1     3rd Qu.:16.58  
 ##                     Max.   :1011   Max.   :1     Max.   :22.25  
 ## </code></pre>
+<p>correlation between temperature and wind speed</p>
+<pre class="r"><code>cor(elev$temp, elev$wind.sp, use=&quot;complete&quot;)</code></pre>
+<pre><code>## [1] -0.3318348</code></pre>
+<p>correlation between temperature and hours</p>
+<pre class="r"><code>cor(elev$temp, elev$hour, use=&quot;complete&quot;)</code></pre>
+<pre><code>## [1] 0.7302148</code></pre>
+<p>correlation between wind speed and day</p>
+<pre class="r"><code>cor(elev$wind.sp, elev$day, use=&quot;complete&quot;)</code></pre>
+<pre><code>## [1] -0.7412098</code></pre>
+<p>correlation between wind speed and hour</p>
+<pre class="r"><code>cor(elev$wind.sp, elev$hour, use=&quot;complete&quot;)</code></pre>
+<pre><code>## [1] -0.8021375</code></pre>
+<p>correlation between temperature and day</p>
+<pre class="r"><code>cor(elev$temp, elev$day, use=&quot;complete&quot;)</code></pre>
+<pre><code>## [1] 0.8284796</code></pre>
+</div>
+<div id="step-7-exploratory-graphs" class="section level2">
+<h2>Step 7 Exploratory Graphs</h2>
 </div>
 
 

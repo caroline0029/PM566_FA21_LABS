@@ -88,9 +88,9 @@ head(met2)
 ## Step 5 Check the data against an external data source
 ```{r}
 #make the temperature reasonable (temp > -15C)
-met <- met[temp>-15]
-met2 <- met[order(temp)]
-head(met2)
+met <- met[temp>-15][order(temp)]
+summary(met[, .(lat, lon, wind.sp, temp, elev)])
+head(met)
 ```
 
 ## Step 6 Calculate summary statistics
@@ -99,5 +99,25 @@ head(met2)
 elev <- met[elev==min(elev)]
 summary(elev)
 ```
+correlation between temperature and wind speed
+```{r}
+cor(elev$temp, elev$wind.sp, use="complete")
+```
+correlation between temperature and hours
+```{r}
+cor(elev$temp, elev$hour, use="complete")
+```
+correlation between wind speed and day
+```{r}
+cor(elev$wind.sp, elev$day, use="complete")
+```
+correlation between wind speed and hour
+```{r}
+cor(elev$wind.sp, elev$hour, use="complete")
+```
+correlation between temperature and day
+```{r}
+cor(elev$temp, elev$day, use="complete")
+```
 
-
+## Step 7 Exploratory Graphs
