@@ -1,0 +1,88 @@
+---
+title: "LAB3"
+author: "Caroline"
+date: "9/10/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+## Library data.table
+#Install if and only if it's not present
+```{r}
+if (!require(data.table)){
+  install.packages("data.table")
+}
+```
+
+## Step 1 Download and read the dataset
+#Install if we don't have it.
+```{r}
+if (!file.exists("met_all.gz")) {
+download.file("https://raw.githubusercontent.com/USCbiostats/data-science-data/master/02_met/met_all.gz",
+              destfile = "met_all.gz", 
+              method="libcurl", 
+              timeout = 60
+              )
+}
+
+met <- data.table::fread("met_all.gz")
+```
+
+## Step 2 Check the dimensions, headers, footers, rows and columns 
+#Dimensions
+```{r}
+dim(met)
+```
+#Headers
+```{r}
+head(met)
+```
+#Footers
+```{r}
+tail(met)
+```
+#Rows
+```{r}
+nrow(met)
+```
+#Columns
+```{r}
+ncol(met)
+```
+
+## Step 3 Brief look at the variables
+```{r}
+str(met)
+```
+
+## Step 4 Closer look at the key variables
+
+```{r}
+table(met$year)
+
+table(met$day)
+
+table(met$hour)
+
+summary(met$temp)
+
+summary(met$elev)
+
+#replace 9999.0 with NA
+met[met$elev==9999.0] <- NA
+summary(met$elev)
+
+
+```
+
+
+
