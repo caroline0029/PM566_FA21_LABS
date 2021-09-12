@@ -138,6 +138,5 @@ hist(met$elev, breaks=100)
 ```
 
 ```{r}
-
 ```
 
