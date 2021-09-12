@@ -444,3 +444,4 @@ hist(met$elev, breaks=100)
 ```
 
 ![](LAB3_FA21_files/figure-gfm/unnamed-chunk-20-1.png)<!-- -->
+![](LAB3_FA21_files/figure-gfm/unnamed-chunk-20-1.png)
