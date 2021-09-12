@@ -138,7 +138,38 @@ hist(met$elev, breaks=100)
 ```
 ![](LAB3_FA21_files/figure-gfm/unnamed-chunk-20-1.png)
 
+```{r}
+hist(met$temp)
+```
 
 ```{r}
+hist(met$wind.sp)
+```
+
+```{r}
+install.packages("leaflet")
+library(leaflet)
+leaflet(elev) %>%
+  addProviderTiles('OpenStreetMap') %>% 
+  addCircles(lat=~lat,lng=~lon, opacity=1, fillOpacity=1, radius=100)
+```
+
+```{r}
+library(lubridate)
+elev$date <- with(elev, ymd_h(paste(year, month, day, hour, sep= ' ')))
+summary(elev$date)
+```
+
+```{r}
+elev <- elev[order(date)]
+head(elev)
+```
+
+```{r}
+plot(elev$date, elev$temp, type='l')
+```
+
+```{r}
+plot(elev$date, elev$wind.sp, type='l')
 ```
 
