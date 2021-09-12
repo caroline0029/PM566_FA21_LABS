@@ -1,3 +1,6 @@
+---
+output: html_document
+---
 LAB3
 ================
 Caroline
@@ -424,15 +427,6 @@ cor(elev$temp, elev$day, use="complete")
 
     ## [1] -0.003857766
 
-``` r
-met[elev == max((elev), na.rm = TRUE), .(
-  temp_wind = cor(temp, wind.sp, use = "complete"),
-  temp_day = cor(temp, day, use = "complete"),
-  temp_hour = cor(temp, hour, use = "complete"),
-  wind_day = cor(wind.sp, day, use = "complete"),
-  wind_hour = cor(wind.sp, hour, use = "complete")
-)]
-```
 
     ##      temp_wind     temp_day temp_hour  wind_day  wind_hour
     ## 1: -0.09373843 -0.003857766 0.4397261 0.3643079 0.08807315
@@ -443,5 +437,88 @@ met[elev == max((elev), na.rm = TRUE), .(
 hist(met$elev, breaks=100)
 ```
 
+![](LAB3_FA21_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
+
+``` r
+hist(met$temp)
+```
+
 ![](LAB3_FA21_files/figure-gfm/unnamed-chunk-20-1.png)<!-- -->
-![](LAB3_FA21_files/figure-gfm/unnamed-chunk-20-1.png)
+
+``` r
+hist(met$wind.sp)
+```
+
+![](LAB3_FA21_files/figure-gfm/unnamed-chunk-21-1.png)<!-- -->
+
+``` r
+library(lubridate)
+```
+
+    ## 
+    ## Attaching package: 'lubridate'
+
+    ## The following objects are masked from 'package:data.table':
+    ## 
+    ##     hour, isoweek, mday, minute, month, quarter, second, wday, week,
+    ##     yday, year
+
+    ## The following objects are masked from 'package:base':
+    ## 
+    ##     date, intersect, setdiff, union
+
+``` r
+elev$date <- with(elev, ymd_h(paste(year, month, day, hour, sep= ' ')))
+summary(elev$date)
+```
+
+    ##                  Min.               1st Qu.                Median 
+    ## "2019-08-01 00:00:00" "2019-08-08 11:00:00" "2019-08-16 22:00:00" 
+    ##                  Mean               3rd Qu.                  Max. 
+    ## "2019-08-16 14:09:56" "2019-08-24 11:00:00" "2019-08-31 22:00:00"
+
+``` r
+elev <- elev[order(date)]
+head(elev)
+```
+
+    ##    USAFID WBAN year month day hour min  lat      lon elev wind.dir wind.dir.qc
+    ## 1: 720385  419 2019     8   1    0  36 39.8 -105.766 4113      170           5
+    ## 2: 720385  419 2019     8   1    0  54 39.8 -105.766 4113      100           5
+    ## 3: 720385  419 2019     8   1    1  12 39.8 -105.766 4113       90           5
+    ## 4: 720385  419 2019     8   1    1  35 39.8 -105.766 4113      110           5
+    ## 5: 720385  419 2019     8   1    1  53 39.8 -105.766 4113      120           5
+    ## 6: 720385  419 2019     8   1    2  36 39.8 -105.766 4113      110           5
+    ##    wind.type.code wind.sp wind.sp.qc ceiling.ht ceiling.ht.qc ceiling.ht.method
+    ## 1:              N     8.8          5       1372             5                 M
+    ## 2:              N     2.6          5       1372             5                 M
+    ## 3:              N     3.1          5       1981             5                 M
+    ## 4:              N     4.1          5       2134             5                 M
+    ## 5:              N     4.6          5       2134             5                 M
+    ## 6:              N     6.2          5      22000             5                 9
+    ##    sky.cond vis.dist vis.dist.qc vis.var vis.var.qc temp temp.qc dew.point
+    ## 1:        N       NA           9       N          5    9       5         1
+    ## 2:        N       NA           9       N          5    9       5         1
+    ## 3:        N       NA           9       N          5    9       5         2
+    ## 4:        N       NA           9       N          5    9       5         2
+    ## 5:        N       NA           9       N          5    9       5         2
+    ## 6:        N       NA           9       N          5    8       5         1
+    ##    dew.point.qc atm.press atm.press.qc       rh                date
+    ## 1:            5        NA            9 57.61039 2019-08-01 00:00:00
+    ## 2:            5        NA            9 57.61039 2019-08-01 00:00:00
+    ## 3:            5        NA            9 61.85243 2019-08-01 01:00:00
+    ## 4:            5        NA            9 61.85243 2019-08-01 01:00:00
+    ## 5:            5        NA            9 61.85243 2019-08-01 01:00:00
+    ## 6:            5        NA            9 61.62158 2019-08-01 02:00:00
+
+``` r
+plot(elev$date, elev$temp, type='l')
+```
+
+![](LAB3_FA21_files/figure-gfm/unnamed-chunk-25-1.png)<!-- -->
+
+``` r
+plot(elev$date, elev$wind.sp, type='l')
+```
+
+![](LAB3_FA21_files/figure-gfm/unnamed-chunk-26-1.png)<!-- -->
