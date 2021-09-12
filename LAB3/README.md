@@ -517,8 +517,12 @@ plot(elev$date, elev$temp, type='l')
 
 ![](LAB3_FA21_files/figure-gfm/unnamed-chunk-25-1.png)<!-- -->
 
+During August, the temperature had a generally constant trend.
+
 ``` r
 plot(elev$date, elev$wind.sp, type='l')
 ```
 
 ![](LAB3_FA21_files/figure-gfm/unnamed-chunk-26-1.png)<!-- -->
+
+During August, the wind speed had a mildly increaing trend, and then a mildly decreasing trend.
