@@ -113,9 +113,8 @@ met_avg[!is.na(elev_cat)] %>%
       y = "frequency",
       title = "barplot of the weather station by elevation category") +
     scale_fill_brewer(palette = "GnBu")
-
 ```
-
+The southeast with low elevation show the highest frequency
 
 ## Step 6: Use stat_summary to examine mean dew point and wind speed by region with standard deviation error bars
 
