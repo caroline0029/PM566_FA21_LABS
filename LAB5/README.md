@@ -259,8 +259,6 @@ station_averages
     ## 1594:             4.6068486                1.2190288
     ## 1595:             2.9597295                0.5559611
 
-\`\`\`
-
 # Question 3: In the middle?
 
 For each state, identify what is the station that is closest to the

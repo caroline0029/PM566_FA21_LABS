@@ -15,7 +15,7 @@ knitr::opts_chunk$set(echo = TRUE)
 # Part 1: Setup the Git project and the GitHub repository
 now start working with the MET data.
 
-# Setup in R
+## Setup in R
 ```{r packages}
 # Set up R packages
 library(data.table)
@@ -152,8 +152,6 @@ station_averages[,eudist_wind.sp_atm.press := sqrt(
 station_averages
 ```
 
-
-```
 
 
 # Question 3: In the middle?
