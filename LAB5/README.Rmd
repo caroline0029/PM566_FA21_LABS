@@ -25,6 +25,26 @@ library(dplyr)
 
 ```{r dataset}
 # Download and read in the data
+stations <- fread("ftp://ftp.ncdc.noaa.gov/pub/data/noaa/isd-history.csv")
+stations[, USAF := as.integer(USAF)]
+
+# Dealing with NAs and 999999
+stations[, USAF   := fifelse(USAF == 999999, NA_integer_, USAF)]
+stations[, CTRY   := fifelse(CTRY == "", NA_character_, CTRY)]
+stations[, STATE  := fifelse(STATE == "", NA_character_, STATE)]
+
+# Selecting the three relevant columns, and keeping unique records
+stations <- unique(stations[, list(USAF, CTRY, STATE)])
+
+# Dropping NAs
+stations <- stations[!is.na(USAF)]
+
+# Removing duplicates
+stations[, n := 1:.N, by = .(USAF)]
+stations <- stations[n == 1,][, n := NULL]
+```
+
+```{r}
 if (!file.exists("met_all.gz"))
   download.file(
     url = "https://raw.githubusercontent.com/USCbiostats/data-science-data/master/02_met/met_all.gz",
@@ -33,25 +53,9 @@ if (!file.exists("met_all.gz"))
     timeout  = 60
     )
 met <- data.table::fread("met_all.gz")
+```
 
-stations <- fread("ftp://ftp.ncdc.noaa.gov/pub/data/noaa/isd-history.csv")
-stations[, USAF := as.integer(USAF)]
-
-# Deal with NAs and 99999
-stations[, USAF   := fifelse(USAF == 999999, NA_integer_, USAF)]
-stations[, CTRY   := fifelse(CTRY == "", NA_character_, CTRY)]
-stations[, STATE  := fifelse(STATE == "", NA_character_, STATE)]
-
-# Select columns
-stations <- unique(stations[, list(USAF, CTRY, STATE)])
-
-# Remove NA
-stations <- stations[!is.na(USAF)]
-
-# Remove duplicates
-stations[, n := 1:.N, by = .(USAF)]
-stations <- stations[n == 1,][, n := NULL]
-
+```{r}
 # Merge date
 met <- merge(
   # Data
@@ -102,6 +106,7 @@ median_atm.press_station <- station_averages[order(atm.press_dist)][1]
 median_temp_station
 median_wind.sp_station
 median_atm.press_station
+station_averages
 ```
 The median temperature station was `r median_temp_station$USAFID`
 
@@ -113,12 +118,13 @@ The median atm.press station was `r median_atm.press_station$USAFID`
 # Question 2: Representative station per state
 Just like the previous question, you are asked to identify what is the most representative, the median, station per state. This time, instead of looking at one variable at a time, look at the euclidean distance. If multiple stations show in the median, select the one located at the lowest latitude.
 
-First recover state variables by merge
+First recover states variables by merge
 ```{r}
 station_averages <- merge(
   x = station_averages, y = stations, 
   by.x = "USAFID", by.y = "USAF",
   all.x = TRUE, all.y = FALSE)
+station_averages
 ```
 
 Now we can compute the median per state
@@ -152,12 +158,35 @@ station_averages[,eudist_wind.sp_atm.press := sqrt(
 station_averages
 ```
 
+Select USAFID and lat columns
+```{r}
+met_lat <- met[, list(USAFID, lat)]
+met_lat[, n := 1:.N, by = .(USAFID)]
+met_lat <- met_lat[n == 1,][, n := NULL]
+```
+
+merge data frames
+```{r}
+station_averages_merge <- merge(
+  x = station_averages, y = met_lat,
+  by.x = "USAFID", by.y = "USAFID",
+  all.x = TRUE,      
+  all.y = FALSE
+)
+station_averages_merge
+```
+
+
 # Question 3: In the middle?
 For each state, identify what is the station that is closest to the mid-point of the state. Combining these with the stations you identified in the previous question, use leaflet() to visualize all ~100 points in the same figure, applying different colors for those identified in this question.
 
 
 # Question 4: Means of means
 Using the quantile() function, generate a summary table that shows the number of states included, average temperature, wind-speed, and atmospheric pressure by the variable “average temperature level,” which you’ll need to create.
+```{r}
+
+```
+
 
 
 

@@ -14,7 +14,7 @@ time practice your Git+GitHub skills for this project.
 
 now start working with the MET data.
 
-# Setup in R
+## Setup in R
 
 ``` r
 # Set up R packages
@@ -40,6 +40,30 @@ library(dplyr)
 
 ``` r
 # Download and read in the data
+stations <- fread("ftp://ftp.ncdc.noaa.gov/pub/data/noaa/isd-history.csv")
+stations[, USAF := as.integer(USAF)]
+```
+
+    ## Warning in eval(jsub, SDenv, parent.frame()): NAs introduced by coercion
+
+``` r
+# Dealing with NAs and 999999
+stations[, USAF   := fifelse(USAF == 999999, NA_integer_, USAF)]
+stations[, CTRY   := fifelse(CTRY == "", NA_character_, CTRY)]
+stations[, STATE  := fifelse(STATE == "", NA_character_, STATE)]
+
+# Selecting the three relevant columns, and keeping unique records
+stations <- unique(stations[, list(USAF, CTRY, STATE)])
+
+# Dropping NAs
+stations <- stations[!is.na(USAF)]
+
+# Removing duplicates
+stations[, n := 1:.N, by = .(USAF)]
+stations <- stations[n == 1,][, n := NULL]
+```
+
+``` r
 if (!file.exists("met_all.gz"))
   download.file(
     url = "https://raw.githubusercontent.com/USCbiostats/data-science-data/master/02_met/met_all.gz",
@@ -48,29 +72,9 @@ if (!file.exists("met_all.gz"))
     timeout  = 60
     )
 met <- data.table::fread("met_all.gz")
-
-stations <- fread("ftp://ftp.ncdc.noaa.gov/pub/data/noaa/isd-history.csv")
-stations[, USAF := as.integer(USAF)]
 ```
 
-    ## Warning in eval(jsub, SDenv, parent.frame()): NAs introduced by coercion
-
 ``` r
-# Deal with NAs and 99999
-stations[, USAF   := fifelse(USAF == 999999, NA_integer_, USAF)]
-stations[, CTRY   := fifelse(CTRY == "", NA_character_, CTRY)]
-stations[, STATE  := fifelse(STATE == "", NA_character_, STATE)]
-
-# Select columns
-stations <- unique(stations[, list(USAF, CTRY, STATE)])
-
-# Remove NA
-stations <- stations[!is.na(USAF)]
-
-# Remove duplicates
-stations[, n := 1:.N, by = .(USAF)]
-stations <- stations[n == 1,][, n := NULL]
-
 # Merge date
 met <- merge(
   # Data
@@ -150,6 +154,23 @@ median_atm.press_station
     ##    USAFID     temp  wind.sp atm.press temp_dist wind.sp_dist atm.press_dist
     ## 1: 722238 26.13978 1.472656  1014.691  2.455719    0.9891817   0.0005376377
 
+``` r
+station_averages
+```
+
+    ##       USAFID     temp  wind.sp atm.press temp_dist wind.sp_dist atm.press_dist
+    ##    1: 690150 33.18763 3.483560  1010.379 9.5035752  1.021721847      4.3124708
+    ##    2: 720110 31.22003 2.138348       NaN 7.5359677  0.323490383            NaN
+    ##    3: 720113 23.29317 2.470298       NaN 0.3908894  0.008459788            NaN
+    ##    4: 720120 27.01922 2.504692       NaN 3.3351568  0.042854372            NaN
+    ##    5: 720137 21.88823 1.979335       NaN 1.7958292  0.482502805            NaN
+    ##   ---                                                                         
+    ## 1591: 726777 19.15492 4.673878  1014.299 4.5291393  2.212040085      0.3920955
+    ## 1592: 726797 18.78980 2.858586  1014.902 4.8942607  0.396747923      0.2106085
+    ## 1593: 726798 19.47014 4.445783  1014.072 4.2139153  1.983945197      0.6195467
+    ## 1594: 726810 25.03549 3.039794  1011.730 1.3514356  0.577955642      2.9607085
+    ## 1595: 726813 23.47809 2.435372  1012.315 0.2059716  0.026465595      2.3759601
+
 The median temperature station was 720458
 
 The median wind speed station was 720929
@@ -164,14 +185,40 @@ of looking at one variable at a time, look at the euclidean distance. If
 multiple stations show in the median, select the one located at the
 lowest latitude.
 
-First recover state variables by merge
+First recover states variables by merge
 
 ``` r
 station_averages <- merge(
   x = station_averages, y = stations, 
   by.x = "USAFID", by.y = "USAF",
   all.x = TRUE, all.y = FALSE)
+station_averages
 ```
+
+    ##       USAFID     temp  wind.sp atm.press temp_dist wind.sp_dist atm.press_dist
+    ##    1: 690150 33.18763 3.483560  1010.379 9.5035752  1.021721847      4.3124708
+    ##    2: 720110 31.22003 2.138348       NaN 7.5359677  0.323490383            NaN
+    ##    3: 720113 23.29317 2.470298       NaN 0.3908894  0.008459788            NaN
+    ##    4: 720120 27.01922 2.504692       NaN 3.3351568  0.042854372            NaN
+    ##    5: 720137 21.88823 1.979335       NaN 1.7958292  0.482502805            NaN
+    ##   ---                                                                         
+    ## 1591: 726777 19.15492 4.673878  1014.299 4.5291393  2.212040085      0.3920955
+    ## 1592: 726797 18.78980 2.858586  1014.902 4.8942607  0.396747923      0.2106085
+    ## 1593: 726798 19.47014 4.445783  1014.072 4.2139153  1.983945197      0.6195467
+    ## 1594: 726810 25.03549 3.039794  1011.730 1.3514356  0.577955642      2.9607085
+    ## 1595: 726813 23.47809 2.435372  1012.315 0.2059716  0.026465595      2.3759601
+    ##       CTRY STATE
+    ##    1:   US    CA
+    ##    2:   US    TX
+    ##    3:   US    MI
+    ##    4:   US    SC
+    ##    5:   US    IL
+    ##   ---           
+    ## 1591:   US    MT
+    ## 1592:   US    MT
+    ## 1593:   US    MT
+    ## 1594:   US    ID
+    ## 1595:   US    ID
 
 Now we can compute the median per state
 
@@ -258,6 +305,10 @@ station_averages
     ## 1593:             0.3351114                0.3152722
     ## 1594:             4.6068486                1.2190288
     ## 1595:             2.9597295                0.5559611
+
+Select USAFID and lat columns
+
+merge data frames
 
 # Question 3: In the middle?
 
