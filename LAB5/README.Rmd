@@ -180,9 +180,7 @@ station_averages_merge %>%
 station_averages_merge
 ```
 
-```{r}
 
-```
 
 
 # Question 3: In the middle?
