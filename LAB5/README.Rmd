@@ -141,16 +141,10 @@ the euclidean distance is calculated by $\sqrt{\sum_i(x_i - y_i)^2}$.
 station_averages[,eudist_temp_wind.sp := sqrt(
   (temp - temp_50)^2 + (wind.sp - wind.sp_50)^2
   )]
-```
-
-```{r}
 #temperature & atm.press
 station_averages[,eudist_temp_atm.press := sqrt(
   (temp - temp_50)^2 + (atm.press - atm.press_50)^2
   )]
-```
-
-```{r}
 #wind speed & atm.press
 station_averages[,eudist_wind.sp_atm.press := sqrt(
   (wind.sp - wind.sp_50)^2 + (atm.press - atm.press_50)^2
@@ -158,15 +152,13 @@ station_averages[,eudist_wind.sp_atm.press := sqrt(
 station_averages
 ```
 
-Select USAFID and lat columns
+Recover data frame 
 ```{r}
+#select lat & USAFID variables from data set
 met_lat <- met[, list(USAFID, lat)]
 met_lat[, n := 1:.N, by = .(USAFID)]
 met_lat <- met_lat[n == 1,][, n := NULL]
-```
-
-merge data frames
-```{r}
+#merge data frames
 station_averages_merge <- merge(
   x = station_averages, y = met_lat,
   by.x = "USAFID", by.y = "USAFID",
