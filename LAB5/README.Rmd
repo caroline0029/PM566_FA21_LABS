@@ -152,8 +152,6 @@ station_averages[,eudist_wind.sp_atm.press := sqrt(
 station_averages
 ```
 
-
-
 # Question 3: In the middle?
 For each state, identify what is the station that is closest to the mid-point of the state. Combining these with the stations you identified in the previous question, use leaflet() to visualize all ~100 points in the same figure, applying different colors for those identified in this question.
 
