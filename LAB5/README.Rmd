@@ -149,10 +149,9 @@ station_averages[,eudist_temp_atm.press := sqrt(
 station_averages[,eudist_wind.sp_atm.press := sqrt(
   (wind.sp - wind.sp_50)^2 + (atm.press - atm.press_50)^2
   )]
-station_averages
 ```
 
-Recover data frame 
+Recover the data frame
 ```{r}
 #select lat & USAFID variables from data set
 met_lat <- met[, list(USAFID, lat)]
@@ -167,10 +166,31 @@ station_averages_merge <- merge(
 )
 station_averages_merge
 ```
+Sum up the euclidean distance and remove the duplicates
+```{r}
+station_averages_merge[, eudist_total:= 
+  rowSums(
+   cbind(
+    eudist_temp_wind.sp, 
+    eudist_temp_atm.press, 
+    eudist_wind.sp_atm.press
+), na.rm = TRUE)]
+station_averages_merge %>%
+  distinct()
+station_averages_merge
+```
+
+```{r}
+
+```
 
 
 # Question 3: In the middle?
 For each state, identify what is the station that is closest to the mid-point of the state. Combining these with the stations you identified in the previous question, use leaflet() to visualize all ~100 points in the same figure, applying different colors for those identified in this question.
+
+```{r}
+
+```
 
 
 # Question 4: Means of means
