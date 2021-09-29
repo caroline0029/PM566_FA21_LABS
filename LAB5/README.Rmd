@@ -56,18 +56,14 @@ met <- data.table::fread("met_all.gz")
 ```
 
 ```{r}
-# Merge date
 met <- merge(
-  # Data
-  x     = met,      
-  y     = stations, 
-  # List of variables to match
+  x     = met,
+  y     = stations,
   by.x  = "USAFID",
-  by.y  = "USAF", 
-  # Which obs to keep?
-  all.x = TRUE,      
+  by.y  = "USAF",
+  all.x = TRUE,
   all.y = FALSE
-  ) 
+)
 ```
 
 # Question 1: Representative station for the US
@@ -132,56 +128,18 @@ Now we can compute the median per state
 station_averages[, temp_50 := quantile(temp, probs = .5, na.rm = TRUE), by = STATE]
 station_averages[, wind.sp_50 := quantile(wind.sp, probs = .5, na.rm = TRUE), by = STATE]
 station_averages[, atm.press_50 := quantile(atm.press, probs = .5, na.rm = TRUE), by = STATE]
-head(station_averages)
 ```
 
 the euclidean distance is calculated by $\sqrt{\sum_i(x_i - y_i)^2}$.
 ```{r}
-#temperature & wind speed
-station_averages[,eudist_temp_wind.sp := sqrt(
-  (temp - temp_50)^2 + (wind.sp - wind.sp_50)^2
-  )]
-#temperature & atm.press
-station_averages[,eudist_temp_atm.press := sqrt(
-  (temp - temp_50)^2 + (atm.press - atm.press_50)^2
-  )]
-#wind speed & atm.press
-station_averages[,eudist_wind.sp_atm.press := sqrt(
-  (wind.sp - wind.sp_50)^2 + (atm.press - atm.press_50)^2
-  )]
-```
-
-Recover the data frame
-```{r}
-#select lat & USAFID variables from data set
-met_lat <- met[, list(USAFID, lat)]
-met_lat[, n := 1:.N, by = .(USAFID)]
-met_lat <- met_lat[n == 1,][, n := NULL]
-#merge data frames
-station_averages_merge <- merge(
-  x = station_averages, y = met_lat,
-  by.x = "USAFID", by.y = "USAFID",
-  all.x = TRUE,      
-  all.y = FALSE
-)
-station_averages_merge
-```
-Sum up the euclidean distance and remove the duplicates
-```{r}
-station_averages_merge[, eudist_total:= 
-  rowSums(
-   cbind(
-    eudist_temp_wind.sp, 
-    eudist_temp_atm.press, 
-    eudist_wind.sp_atm.press
-), na.rm = TRUE)]
-station_averages_merge %>%
-  distinct()
-station_averages_merge
-```
-Order data frome by lat variables
-```{r}
-station_averages_merge[order(, lat, decreasing = FALSE)]
+#calculation of euclidean distance
+station_averages[,eudist := 
+  sqrt((temp - temp_50)^2 + (wind.sp - wind.sp_50)^2) + 
+  sqrt((temp - temp_50)^2 + (atm.press - atm.press_50)^2) +
+  sqrt((wind.sp - wind.sp_50)^2 + (atm.press - atm.press_50)^2)]
+#group by state
+station_averages <- station_averages[ , .SD[which.min(eudist)], by = STATE]
+station_averages
 ```
 
 
@@ -189,9 +147,22 @@ station_averages_merge[order(, lat, decreasing = FALSE)]
 # Question 3: In the middle?
 For each state, identify what is the station that is closest to the mid-point of the state. Combining these with the stations you identified in the previous question, use leaflet() to visualize all ~100 points in the same figure, applying different colors for those identified in this question.
 
+Set up data
 ```{r}
-
+#create mid lat & mid lon
+met[, lat_50 := quantile(lat, probs = .5, na.rm = TRUE), by = STATE]
+met[, lon_50 := quantile(lon, probs = .5, na.rm = TRUE), by = STATE]
+#select columns
+middle <- met[, list(USAFID, STATE, lat, lon, lat_50, lon_50)]
 ```
+calculate the
+```{r}
+station_midpoint <- merge(
+  x = station_averages, y = middle, 
+  by = "USAFID",
+  all.x = TRUE, all.y = FALSE)
+```
+visualize data via leaflet()
 
 
 # Question 4: Means of means
@@ -199,10 +170,3 @@ Using the quantile() function, generate a summary table that shows the number of
 ```{r}
 
 ```
-
-
-
-
-
-
-
