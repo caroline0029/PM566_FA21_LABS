@@ -187,7 +187,8 @@ First recover states variables by merge
 station_averages <- merge(
   x = station_averages, y = stations, 
   by.x = "USAFID", by.y = "USAF",
-  all.x = TRUE, all.y = FALSE)
+  all.x = TRUE, all.y = FALSE
+  )
 station_averages
 ```
 
@@ -343,22 +344,46 @@ in the previous question, use leaflet() to visualize all \~100 points in
 the same figure, applying different colors for those identified in this
 question.
 
+Set up data
+
 ``` r
 #create mid lat & mid lon
 met[, lat_50 := quantile(lat, probs = .5, na.rm = TRUE), by = STATE]
 met[, lon_50 := quantile(lon, probs = .5, na.rm = TRUE), by = STATE]
+met[, eudist_mid := sqrt((lat - lat_50)^2 + (lon - lon_50)^2)]
 #select columns
-middle <- met[, list(USAFID, STATE, lat, lon, lat_50, lon_50)]
+middle <- met[, list(USAFID, STATE, lat, lon, lat_50, lon_50, eudist_mid)]
+middle <- middle[ , .SD[which.min(eudist_mid)], by = STATE]
 ```
 
-combine with previous stations
+calculate the euclidean distance by $\\sqrt{\\sum\_i(x\_i - y\_i)^2}$.
 
 ``` r
+#merge data with previous stations
 station_midpoint <- merge(
-  x = station_averages, y = middle, 
-  by = "USAFID",
-  all.x = TRUE, all.y = FALSE)
+  x = station_averages, y = middle,
+  all.x = TRUE, all.y = FALSE,
+  by = "USAFID")
+station_midpoint <- rename(station_midpoint, STATE = STATE.x)
+station_midpoint
 ```
+
+    ## Source: local data table [46 x 19]
+    ## Call:   setnames(copy(`_DT1`), "STATE.x", "STATE")
+    ## 
+    ##   USAFID STATE  temp wind.sp atm.press temp_dist wind.sp_dist atm.press_dist
+    ##    <int> <chr> <dbl>   <dbl>     <dbl>     <dbl>        <dbl>          <dbl>
+    ## 1 722106 FL     27.5    2.71     1015.      3.84        0.249          0.631
+    ## 2 722286 AL     26.4    1.68     1015.      2.67        0.786          0.218
+    ## 3 722340 MS     26.9    1.69     1015.      3.23        0.772          0.151
+    ## 4 722416 TX     29.8    3.54     1012.      6.07        1.08           2.36 
+    ## 5 722486 LA     28.2    1.59     1015.      4.48        0.869          0.147
+    ## 6 722745 AZ     30.3    3.31     1010.      6.63        0.846          4.55 
+    ## # … with 40 more rows, and 11 more variables: CTRY <chr>, temp_50 <dbl>,
+    ## #   wind.sp_50 <dbl>, atm.press_50 <dbl>, eudist <dbl>, STATE.y <chr>,
+    ## #   lat <dbl>, lon <dbl>, lat_50 <dbl>, lon_50 <dbl>, eudist_mid <dbl>
+    ## 
+    ## # Use as.data.table()/as.data.frame()/as_tibble() to access results
 
 visualize data via leaflet()
 

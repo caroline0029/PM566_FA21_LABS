@@ -119,7 +119,8 @@ First recover states variables by merge
 station_averages <- merge(
   x = station_averages, y = stations, 
   by.x = "USAFID", by.y = "USAF",
-  all.x = TRUE, all.y = FALSE)
+  all.x = TRUE, all.y = FALSE
+  )
 station_averages
 ```
 
@@ -147,26 +148,32 @@ station_averages
 # Question 3: In the middle?
 For each state, identify what is the station that is closest to the mid-point of the state. Combining these with the stations you identified in the previous question, use leaflet() to visualize all ~100 points in the same figure, applying different colors for those identified in this question.
 
-Set up data
+Set up mid point data and calculate the euclidean distance by $\sqrt{\sum_i(x_i - y_i)^2}$.
 ```{r}
 #create mid lat & mid lon
 met[, lat_50 := quantile(lat, probs = .5, na.rm = TRUE), by = STATE]
 met[, lon_50 := quantile(lon, probs = .5, na.rm = TRUE), by = STATE]
+met[, eudist_mid := sqrt((lat - lat_50)^2 + (lon - lon_50)^2)]
 #select columns
-middle <- met[, list(USAFID, STATE, lat, lon, lat_50, lon_50)]
+middle <- met[, list(USAFID, STATE, lat, lon, lat_50, lon_50, eudist_mid)]
+middle <- middle[ , .SD[which.min(eudist_mid)], by = STATE]
 ```
-calculate the
+Merge two data set
 ```{r}
+#merge data with previous stations
 station_midpoint <- merge(
-  x = station_averages, y = middle, 
-  by = "USAFID",
-  all.x = TRUE, all.y = FALSE)
+  x = station_averages, y = middle,
+  all.x = TRUE, all.y = FALSE,
+  by = "USAFID")
+station_midpoint <- rename(station_midpoint, STATE = STATE.x)
+station_midpoint
 ```
 visualize data via leaflet()
 
 
 # Question 4: Means of means
 Using the quantile() function, generate a summary table that shows the number of states included, average temperature, wind-speed, and atmospheric pressure by the variable “average temperature level,” which you’ll need to create.
-```{r}
 
+
+```{r}
 ```
