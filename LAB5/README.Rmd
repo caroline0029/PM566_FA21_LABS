@@ -179,6 +179,11 @@ station_averages_merge %>%
   distinct()
 station_averages_merge
 ```
+Order data frome by lat variables
+```{r}
+station_averages_merge[order(, lat, decreasing = FALSE)]
+```
+
 
 
 # Question 3: In the middle?
