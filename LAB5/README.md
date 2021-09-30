@@ -344,7 +344,8 @@ in the previous question, use leaflet() to visualize all \~100 points in
 the same figure, applying different colors for those identified in this
 question.
 
-Set up data
+Set up mid point data and calculate the euclidean distance by
+$\\sqrt{\\sum\_i(x\_i - y\_i)^2}$.
 
 ``` r
 #create mid lat & mid lon
@@ -356,7 +357,7 @@ middle <- met[, list(USAFID, STATE, lat, lon, lat_50, lon_50, eudist_mid)]
 middle <- middle[ , .SD[which.min(eudist_mid)], by = STATE]
 ```
 
-calculate the euclidean distance by $\\sqrt{\\sum\_i(x\_i - y\_i)^2}$.
+Merge two data set
 
 ``` r
 #merge data with previous stations
@@ -385,7 +386,22 @@ station_midpoint
     ## 
     ## # Use as.data.table()/as.data.frame()/as_tibble() to access results
 
-visualize data via leaflet()
+Visualize data via leaflet()
+
+``` r
+#library packages
+library(leaflet)
+#visualize via leaflet()
+leaflet() %>%
+  addProviderTiles('CartoDB.Positron') %>%
+  addCircles(
+    lat = ~lat, lng = ~lon, 
+    color = 'light blue',
+    opacity = 1,
+    fillOpacity = 1,
+    radius=100
+)
+```
 
 # Question 4: Means of means
 
@@ -393,3 +409,57 @@ Using the quantile() function, generate a summary table that shows the
 number of states included, average temperature, wind-speed, and
 atmospheric pressure by the variable “average temperature level,” which
 you’ll need to create.
+
+computing the states’ average temperature. Use that measurement to
+classify them according to the following criteria
+
+-   low: temp &lt; 20
+-   Mid: temp &gt;= 20 and temp &lt; 25
+-   High: temp &gt;= 25
+
+Once you are done with that, you can compute the following:
+
+-   Number of entries (records),
+-   Number of NA entries,
+-   Number of stations,
+-   Number of states included, and
+-   Mean temperature, wind-speed, and atmospheric pressure.
+
+``` r
+met[, state_temp := mean(temp, na.rm = TRUE), by = STATE]
+met[, state_wind.sp := mean(wind.sp, na.rm = TRUE),by = STATE]
+met[, state_atm.press := mean(atm.press, na.rm = TRUE),by = STATE]
+met[, temp_cat := fifelse(
+  state_temp < 20, "low-temp",
+  fifelse(state_temp < 25, "mid-temp", "high-temp"))]
+```
+
+Lets make sure that we don’t have NAs
+
+``` r
+table(met$temp_cat, useNA = "always")
+```
+
+    ## 
+    ## high-temp  low-temp  mid-temp      <NA> 
+    ##    811126    430794   1135423         0
+
+Summarize the data
+
+``` r
+tab <- met[, .(
+  N_entries = .N,
+  N_stations = length(unique(USAFID)),
+  avg_temp = mean(state_temp),
+  avg_wind.sp = mean(state_wind.sp),
+  avg_atm.press = mean(state_atm.press)
+), by = temp_cat]
+
+knitr::kable(tab)
+```
+
+| temp\_cat | N\_entries | N\_stations | avg\_temp | avg\_wind.sp | avg\_atm.press |
+|:----------|-----------:|------------:|----------:|-------------:|---------------:|
+| mid-temp  |    1135423 |         781 |  22.39870 |     2.352673 |       1014.587 |
+| high-temp |     811126 |         555 |  27.74436 |     2.512854 |       1013.679 |
+| low-temp  |     430794 |         259 |  18.96402 |     2.642823 |             NA |
