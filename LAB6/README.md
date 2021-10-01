@@ -6,7 +6,7 @@ Caroline He
 # Lab 06： Text Mining
 
 ``` r
-knitr::opts_chunk$set(eval = FALSE, include  = FALSE)
+knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ## Learning goals
@@ -15,23 +15,81 @@ knitr::opts_chunk$set(eval = FALSE, include  = FALSE)
     ngrams from text.
 -   Use dplyr and ggplot2 to analyze text data
 
-## Lab description
-
-For this lab we will be working with a new dataset. The dataset contains
-transcription samples from <https://www.mtsamples.com/>. And is loaded
-and “fairly” cleaned at
-<https://raw.githubusercontent.com/USCbiostats/data-science-data/master/00_mtsamples/mtsamples.csv>.
-
 ### Setup packages
 
 You should load in dplyr, (or data.table if you want to work that way),
 ggplot2 and tidytext. If you don’t already have tidytext then you can
-install with
+install
+
+``` r
+library(data.table)
+library(dplyr)
+```
+
+    ## 
+    ## Attaching package: 'dplyr'
+
+    ## The following objects are masked from 'package:data.table':
+    ## 
+    ##     between, first, last
+
+    ## The following objects are masked from 'package:stats':
+    ## 
+    ##     filter, lag
+
+    ## The following objects are masked from 'package:base':
+    ## 
+    ##     intersect, setdiff, setequal, union
+
+``` r
+library(tidyverse)
+```
+
+    ## ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.1 ──
+
+    ## ✓ ggplot2 3.3.5     ✓ purrr   0.3.4
+    ## ✓ tibble  3.1.4     ✓ stringr 1.4.0
+    ## ✓ tidyr   1.1.3     ✓ forcats 0.5.1
+    ## ✓ readr   2.0.1
+
+    ## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+    ## x dplyr::between()   masks data.table::between()
+    ## x dplyr::filter()    masks stats::filter()
+    ## x dplyr::first()     masks data.table::first()
+    ## x dplyr::lag()       masks stats::lag()
+    ## x dplyr::last()      masks data.table::last()
+    ## x purrr::transpose() masks data.table::transpose()
+
+``` r
+library(tidytext)
+library(tibble)
+library(ggplot2)
+```
 
 ### read in Medical Transcriptions
 
 Loading in reference transcription samples from
 <https://www.mtsamples.com/>
+
+``` r
+fn <- "mtsamples.csv"
+if(!file.exists(fn))
+  download.file("https://raw.githubusercontent.com/USCbiostats/data-science-data/master/00_mtsamples/mtsamples.csv", destfile = fn)
+
+mtsamples <- read.csv(fn)
+mtsamples <- as_tibble(mtsamples)
+head(mtsamples)
+```
+
+    ## # A tibble: 6 × 6
+    ##       X description    medical_specialty sample_name  transcription   keywords  
+    ##   <int> <chr>          <chr>             <chr>        <chr>           <chr>     
+    ## 1     0 " A 23-year-o… " Allergy / Immu… " Allergic … "SUBJECTIVE:, … "allergy …
+    ## 2     1 " Consult for… " Bariatrics"     " Laparosco… "PAST MEDICAL … "bariatri…
+    ## 3     2 " Consult for… " Bariatrics"     " Laparosco… "HISTORY OF PR… "bariatri…
+    ## 4     3 " 2-D M-Mode.… " Cardiovascular… " 2-D Echoc… "2-D M-MODE: ,… "cardiova…
+    ## 5     4 " 2-D Echocar… " Cardiovascular… " 2-D Echoc… "1.  The left … "cardiova…
+    ## 6     5 " Morbid obes… " Bariatrics"     " Laparosco… "PREOPERATIVE … "bariatri…
 
 ## Question 1: What specialties do we have?
 
@@ -39,12 +97,81 @@ We can use count() from dplyr to figure out how many different
 catagories do we have? Are these catagories related? overlapping? evenly
 distributed?
 
+``` r
+specialties <- mtsamples %>%
+  count(medical_specialty)
+```
+
+There are 40 specialties
+
+Determine the distribution
+
+``` r
+# Method 1
+ggplot(mtsamples, mapping = aes(x = medical_specialty)) +
+  geom_histogram(stat = "count") +
+  coord_flip()
+```
+
+    ## Warning: Ignoring unknown parameters: binwidth, bins, pad
+
+![](README_files/figure-gfm/unnamed-chunk-1-1.png)<!-- -->
+
+``` r
+# Method 2
+ggplot(specialties, aes(x = n, y = fct_reorder(medical_specialty, n))) +
+  geom_col()
+```
+
+![](README_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
+
 ## Question 2
 
 -   Tokenize the the words in the transcription column
 -   Count the number of times each token appears
 -   Visualize the top 20 most frequent words Explain what we see from
     this result. Does it makes sense? What insights (if any) do we get?
+
+``` r
+mtsamples %>%
+  unnest_tokens(output = word, input = transcription) %>%
+  count(word, sort = TRUE)%>%
+  top_n(20)
+```
+
+    ## Selecting by n
+
+    ## # A tibble: 20 × 2
+    ##    word         n
+    ##    <chr>    <int>
+    ##  1 the     149888
+    ##  2 and      82779
+    ##  3 was      71765
+    ##  4 of       59205
+    ##  5 to       50632
+    ##  6 a        42810
+    ##  7 with     35815
+    ##  8 in       32807
+    ##  9 is       26378
+    ## 10 patient  22065
+    ## 11 no       17874
+    ## 12 she      17593
+    ## 13 for      17049
+    ## 14 he       15542
+    ## 15 were     15535
+    ## 16 on       14694
+    ## 17 this     13949
+    ## 18 at       13492
+    ## 19 then     12430
+    ## 20 right    11587
+
+``` r
+#  ggplot(aes(x = n, y = fct_reorder(word, n))) +
+#  geom_histogram(stat = "count") 
+```
+
+The word “patient” seems to be important, but we observe a lot of
+stopwords.
 
 ## Question 3
 
