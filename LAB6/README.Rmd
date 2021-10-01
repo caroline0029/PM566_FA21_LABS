@@ -122,27 +122,37 @@ Using the results you got from questions 4. Pick a word and count the words that
 bigrams <- mtsamples %>%
   unnest_ngrams(output = bigram, input = transcription, n = 2) %>%
   separate(bigram, into = c("w1", "w2"), sep = " ") 
+```
+
+Since we are looking at single words again, it is a good idea to treat these as single tokens. Just remove  stopwords and numbers
+```{r history-wo-stop}
 bigrams %>%
-  filter(w1 == "draped")%>%
-  select(w1, w2) %>%
-  count(w2, sort = TRUE)
+  filter(w1 == "history") %>%
+  filter(!(w1 %in% stop_words$word) & !grepl("^[0-9]+$", w2)) %>%
+  count(w2, sort = TRUE)%>%
+  top_n(10)%>%
+  knitr::kable(caption = "words after history")
 
 bigrams %>%
- filter(w2 == "draped")%>%
-  select(w1, w2) %>%
-  count(w1, sort = TRUE)
+  filter(w2 == "history") %>%
+  filter(!(w2 %in% stop_words$word) & !grepl("^[0-9]+$", w1)) %>%
+  count(w1, sort = TRUE)%>%
+  top_n(10)%>%
+  knitr::kable(caption = "words after history")
 ```
+
 
 ## Question 6
 Which words are most used in each of the specialties. you can use group_by() and top_n() from dplyr to have the calculations be done within each specialty. Remember to remove stopwords. How about the most 5 used words?
 ```{r}
 mtsamples %>%
   unnest_tokens(output = word, input = transcription)%>%
-  anti_join(stop_words, by = "word") %>%
-  filter(!grepl("^[0-9]+$", x = word)) %>%
   group_by(medical_specialty)%>%
-  top_n(5)%>%
-  count(word, sort = TRUE)
+  count(word, sort = TRUE) %>%
+  filter(!(word %in% stop_words$word) & !grepl("^[0-9]+$", word)) %>%
+  top_n(5) %>%
+  arrange(medical_specialty, n) %>%
+  knitr::kable()
 ```
 
 ## Question 7
