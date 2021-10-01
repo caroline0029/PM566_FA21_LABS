@@ -136,42 +136,15 @@ ggplot(specialties, aes(x = n, y = fct_reorder(medical_specialty, n))) +
 mtsamples %>%
   unnest_tokens(output = word, input = transcription) %>%
   count(word, sort = TRUE)%>%
-  top_n(20)
+  top_n(20)%>%
+  ggplot(aes(x = n, y = fct_reorder(word, n))) +
+    geom_col()
 ```
 
     ## Selecting by n
 
-    ## # A tibble: 20 × 2
-    ##    word         n
-    ##    <chr>    <int>
-    ##  1 the     149888
-    ##  2 and      82779
-    ##  3 was      71765
-    ##  4 of       59205
-    ##  5 to       50632
-    ##  6 a        42810
-    ##  7 with     35815
-    ##  8 in       32807
-    ##  9 is       26378
-    ## 10 patient  22065
-    ## 11 no       17874
-    ## 12 she      17593
-    ## 13 for      17049
-    ## 14 he       15542
-    ## 15 were     15535
-    ## 16 on       14694
-    ## 17 this     13949
-    ## 18 at       13492
-    ## 19 then     12430
-    ## 20 right    11587
-
-``` r
-#  ggplot(aes(x = n, y = fct_reorder(word, n))) +
-#  geom_histogram(stat = "count") 
-```
-
-The word “patient” seems to be important, but we observe a lot of
-stopwords.
+![](README_files/figure-gfm/token-transcript-1.png)<!-- --> The word
+“patient” seems to be important, but we observe a lot of stopwords.
 
 ## Question 3
 
@@ -179,6 +152,20 @@ stopwords.
 -   Bonus points if you remove numbers as well What do we see know that
     we have removed stop words? Does it give us a better idea of what
     the text is about?
+
+``` r
+mtsamples %>%
+  unnest_tokens(output = word, input = transcription) %>%
+  count(word, sort = TRUE)%>%
+  anti_join(stop_words, by = "word") %>%
+  top_n(20)%>%
+  ggplot(aes(x = n, y = fct_reorder(word, n))) +
+    geom_col()
+```
+
+    ## Selecting by n
+
+![](README_files/figure-gfm/remove_stopwords-1.png)<!-- -->
 
 ## Question 4
 

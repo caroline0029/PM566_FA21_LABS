@@ -69,9 +69,9 @@ Explain what we see from this result. Does it makes sense? What insights (if any
 mtsamples %>%
   unnest_tokens(output = word, input = transcription) %>%
   count(word, sort = TRUE)%>%
-  top_n(20)
-#  ggplot(aes(x = n, y = fct_reorder(word, n))) +
-#  geom_histogram(stat = "count") 
+  top_n(20)%>%
+  ggplot(aes(x = n, y = fct_reorder(word, n))) +
+    geom_col()
 ```
 The word "patient" seems to be important, but we observe a lot of stopwords.
 
@@ -79,8 +79,14 @@ The word "patient" seems to be important, but we observe a lot of stopwords.
 * Redo visualization but remove stopwords before
 * Bonus points if you remove numbers as well
 What do we see know that we have removed stop words? Does it give us a better idea of what the text is about?
-```{r}
-
+```{r remove_stopwords}
+mtsamples %>%
+  unnest_tokens(output = word, input = transcription) %>%
+  count(word, sort = TRUE)%>%
+  anti_join(stop_words, by = "word") %>%
+  top_n(20)%>%
+  ggplot(aes(x = n, y = fct_reorder(word, n))) +
+    geom_col()
 ```
 
 
