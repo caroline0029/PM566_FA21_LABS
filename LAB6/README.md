@@ -158,6 +158,8 @@ mtsamples %>%
   unnest_tokens(output = word, input = transcription) %>%
   count(word, sort = TRUE)%>%
   anti_join(stop_words, by = "word") %>%
+  #using ewgular expression to remove numbers
+  filter(!grepl("^[0-9]+$", x = word)) %>%
   top_n(20)%>%
   ggplot(aes(x = n, y = fct_reorder(word, n))) +
     geom_col()
@@ -172,10 +174,92 @@ mtsamples %>%
 repeat question 2, but this time tokenize into bi-grams. how does the
 result change if you look at tri-grams?
 
+#### Bigram
+
+``` r
+mtsamples %>%
+  unnest_ngrams(output = bigram, input = transcription, n = 2) %>%
+  count(bigram, sort = TRUE)%>%
+  top_n(20)%>%
+  ggplot(aes(x = n, y = fct_reorder(bigram, n))) +
+    geom_col()
+```
+
+    ## Selecting by n
+
+![](README_files/figure-gfm/bigram-1.png)<!-- -->
+
+#### Trigram
+
+``` r
+mtsamples %>%
+  unnest_ngrams(output = trigram, input = transcription, n = 3) %>%
+  count(trigram, sort = TRUE)%>%
+  top_n(20)%>%
+  ggplot(aes(x = n, y = fct_reorder(trigram, n))) +
+    geom_col()
+```
+
+    ## Selecting by n
+
+![](README_files/figure-gfm/trigram-1.png)<!-- -->
+
+Now some phrases started to show up.
+
 ## Question 5
 
 Using the results you got from questions 4. Pick a word and count the
 words that appears after and before it.
+
+``` r
+bigrams <- mtsamples %>%
+  unnest_ngrams(output = bigram, input = transcription, n = 2) %>%
+  separate(bigram, into = c("w1", "w2"), sep = " ") 
+bigrams %>%
+  filter(w1 == "draped")%>%
+  select(w1, w2) %>%
+  count(w2, sort = TRUE)
+```
+
+    ## # A tibble: 54 × 2
+    ##    w2                n
+    ##    <chr>         <int>
+    ##  1 in             1419
+    ##  2 a                44
+    ##  3 and              41
+    ##  4 with             29
+    ##  5 the              25
+    ##  6 cardiac          10
+    ##  7 accordingly       8
+    ##  8 sterilely         8
+    ##  9 appropriately     6
+    ## 10 aseptically       6
+    ## # … with 44 more rows
+
+``` r
+bigrams %>%
+ filter(w2 == "draped")%>%
+  select(w1, w2) %>%
+  count(w1, sort = TRUE)
+```
+
+    ## # A tibble: 14 × 2
+    ##    w1            n
+    ##    <chr>     <int>
+    ##  1 and        1601
+    ##  2 was          55
+    ##  3 then         19
+    ##  4 were         12
+    ##  5 prepped       6
+    ##  6 sterilely     5
+    ##  7 solution      4
+    ##  8 ________      2
+    ##  9 been          2
+    ## 10 fashion       2
+    ## 11 lab           2
+    ## 12 patient       2
+    ## 13 phisohex      2
+    ## 14 properly      2
 
 ## Question 6
 
@@ -183,6 +267,34 @@ Which words are most used in each of the specialties. you can use
 group\_by() and top\_n() from dplyr to have the calculations be done
 within each specialty. Remember to remove stopwords. How about the most
 5 used words?
+
+``` r
+mtsamples %>%
+  unnest_tokens(output = word, input = transcription)%>%
+  anti_join(stop_words, by = "word") %>%
+  filter(!grepl("^[0-9]+$", x = word)) %>%
+  group_by(medical_specialty)%>%
+  top_n(5)%>%
+  count(word, sort = TRUE)
+```
+
+    ## Selecting by word
+
+    ## # A tibble: 131 × 3
+    ## # Groups:   medical_specialty [40]
+    ##    medical_specialty                word          n
+    ##    <chr>                            <chr>     <int>
+    ##  1 " Consult - History and Phy."    zyrtec       18
+    ##  2 " Autopsy"                       yellow       17
+    ##  3 " Letters"                       yyyy         16
+    ##  4 " Chiropractic"                  xyz          15
+    ##  5 " General Medicine"              zyrtec       14
+    ##  6 " Pain Management"               xylocaine    10
+    ##  7 " Psychiatry / Psychology"       zyprexa       9
+    ##  8 " Neurosurgery"                  zygoma        7
+    ##  9 " Lab Medicine - Pathology"      wedge         6
+    ## 10 " SOAP / Chart / Progress Notes" zyrtec        6
+    ## # … with 121 more rows
 
 ## Question 7
 

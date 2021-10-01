@@ -84,20 +84,66 @@ mtsamples %>%
   unnest_tokens(output = word, input = transcription) %>%
   count(word, sort = TRUE)%>%
   anti_join(stop_words, by = "word") %>%
+  #using ewgular expression to remove numbers
+  filter(!grepl("^[0-9]+$", x = word)) %>%
   top_n(20)%>%
   ggplot(aes(x = n, y = fct_reorder(word, n))) +
     geom_col()
 ```
 
-
 ## Question 4
 repeat question 2, but this time tokenize into bi-grams. how does the result change if you look at tri-grams?
 
+#### Bigram
+```{r bigram}
+mtsamples %>%
+  unnest_ngrams(output = bigram, input = transcription, n = 2) %>%
+  count(bigram, sort = TRUE)%>%
+  top_n(20)%>%
+  ggplot(aes(x = n, y = fct_reorder(bigram, n))) +
+    geom_col()
+```
+
+#### Trigram
+```{r trigram}
+mtsamples %>%
+  unnest_ngrams(output = trigram, input = transcription, n = 3) %>%
+  count(trigram, sort = TRUE)%>%
+  top_n(20)%>%
+  ggplot(aes(x = n, y = fct_reorder(trigram, n))) +
+    geom_col()
+```
+
+Now some phrases started to show up.
+
 ## Question 5
 Using the results you got from questions 4. Pick a word and count the words that appears after and before it.
+```{r draped}
+bigrams <- mtsamples %>%
+  unnest_ngrams(output = bigram, input = transcription, n = 2) %>%
+  separate(bigram, into = c("w1", "w2"), sep = " ") 
+bigrams %>%
+  filter(w1 == "draped")%>%
+  select(w1, w2) %>%
+  count(w2, sort = TRUE)
+
+bigrams %>%
+ filter(w2 == "draped")%>%
+  select(w1, w2) %>%
+  count(w1, sort = TRUE)
+```
 
 ## Question 6
 Which words are most used in each of the specialties. you can use group_by() and top_n() from dplyr to have the calculations be done within each specialty. Remember to remove stopwords. How about the most 5 used words?
+```{r}
+mtsamples %>%
+  unnest_tokens(output = word, input = transcription)%>%
+  anti_join(stop_words, by = "word") %>%
+  filter(!grepl("^[0-9]+$", x = word)) %>%
+  group_by(medical_specialty)%>%
+  top_n(5)%>%
+  count(word, sort = TRUE)
+```
 
 ## Question 7
 Find your own insight in the data:
