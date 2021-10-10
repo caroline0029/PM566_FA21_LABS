@@ -254,7 +254,6 @@ schools_and_deps <- str_extract_all(
   str_to_lower(publications_txt),
   "school\\s+of\\s+(southern|new|northern|the)?\\s+w[[:alpha:]-]+|department\\s+of\\s+[[:alpha:]-]+"
   )
-
 table(schools_and_deps)
 ```
 
