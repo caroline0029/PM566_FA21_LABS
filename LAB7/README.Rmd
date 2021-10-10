@@ -30,6 +30,7 @@ In this lab, we will be working with the NCBI API to make queries and extract in
 #r packages
 library(tidyverse)
 library(tidytext)
+library(stringr)
 library(httr)
 ```
 
@@ -123,8 +124,68 @@ publications <- httr::content(publications)
 publications_txt <- as.character(publications)
 ```
 
+### Question 4: Distribution of universities, schools, and departments
+Using the function stringr::str_extract_all() applied on publications_txt, capture all the terms of the form:
 
+1. University of …
+2. … Institute of …
 
+Write a regular expression that captures all such instances
+
+```{r}
+institution <- str_extract_all(
+  str_to_lower(publications_txt),
+  "university\\s+of\\s+(southern|new|northern|the)?\\s+w[[:alpha:]-]+|[[:alpha:]-]+\\s+institute\\s+of\\s+[[:alpha:]-]+"
+  ) 
+institution <- unlist(institution)
+table(institution)
+```
+
+Repeat the exercise and this time focus on schools and departments in the form of
+
+1. School of …
+2. Department of …
+
+And tabulate the results
+```{r}
+schools_and_deps <- str_extract_all(
+  str_to_lower(publications_txt),
+  "school\\s+of\\s+(southern|new|northern|the)?\\s+w[[:alpha:]-]+|department\\s+of\\s+[[:alpha:]-]+"
+  )
+table(schools_and_deps)
+```
+
+### Question 5: Form a database
+We want to build a dataset which includes the title and the abstract of the paper. The title of all records is enclosed by the HTML tag ArticleTitle, and the abstract by Abstract.
+
+Before applying the functions to extract text directly, it will help to process the XML a bit. We will use the xml2::xml_children() function to keep one element per id. This way, if a paper is missing the abstract, or something else, we will be able to properly match PUBMED IDS with their corresponding records.
+```{r}
+pub_char_list <- xml2::xml_children(publications)
+pub_char_list <- sapply(pub_char_list, as.character)
+```
+
+extract the abstract and article title for each one of the elements of pub_char_list. You can either use sapply() as we just did, or simply take advantage of vectorization of stringr::str_extract
+```{r}
+abstracts <- str_extract(pub_char_list, "<Abstract>[[:print:][:space:]]+</Abstract>")
+abstracts <- str_remove_all(abstracts, "</?[[:alnum:]- =\"]+>")
+abstracts <- str_replace_all(abstracts, "[[:space:]]+", " ")
+```
+
+How many of these don’t have an abstract? Now, the title
+```{r}
+titles <- str_extract(pub_char_list, "<ArticleTitle>[[:print:][:space:]]+</ArticleTitle>")
+titles <- str_remove_all(titles, "</?[[:alnum:]- =\"]+>")
+```
+
+Finally, put everything together into a single data.frame and use knitr::kable to print the results
+```{r}
+database <- data.frame(
+  PubMedId = ids,
+  Title    = titles,
+  Abstract = abstracts
+)
+knitr::kable(database[1:20,], caption = "Some papers about Covid19 and Hawaii")
+```
 
 
 
