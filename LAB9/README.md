@@ -39,9 +39,9 @@ microbenchmark::microbenchmark(
 ```
 
     ## Unit: relative
-    ##               expr      min       lq     mean   median       uq     max neval
-    ##     fun1(n = 1000) 36.13513 36.69524 41.03246 39.28551 51.17542 10.2061   100
-    ##  fun1alt(n = 1000)  1.00000  1.00000  1.00000  1.00000  1.00000  1.0000   100
+    ##               expr      min       lq     mean   median       uq      max neval
+    ##     fun1(n = 1000) 35.87483 36.46444 42.32349 39.41429 45.19703 12.34344   100
+    ##  fun1alt(n = 1000)  1.00000  1.00000  1.00000  1.00000  1.00000  1.00000   100
 
 2.  Find the column max (hint: Checkout the function max.col()).
 
@@ -77,9 +77,9 @@ microbenchmark::microbenchmark(
 ```
 
     ## Unit: relative
-    ##        expr      min      lq     mean   median       uq       max neval
-    ##     fun2(x) 9.663485 8.77092 6.896958 8.191276 7.757629 0.8585593   100
-    ##  fun2alt(x) 1.000000 1.00000 1.000000 1.000000 1.000000 1.0000000   100
+    ##        expr      min       lq     mean   median       uq       max neval
+    ##     fun2(x) 9.981411 8.325145 7.051986 8.143809 8.043449 0.8963068   100
+    ##  fun2alt(x) 1.000000 1.000000 1.000000 1.000000 1.000000 1.0000000   100
 
 3.  Among its many uses, non-parametric bootstrapping allow us to obtain
     confidence intervals for parameter estimates without relying on
@@ -111,7 +111,7 @@ my_boot <- function(dat, stat, R, ncpus = 1L) {
   ans <- do.call(rbind, ans)
   
   # STEP 4: GOES HERE
-  
+  g
   ans
   
 }

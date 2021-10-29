@@ -2,12 +2,8 @@
 title: "LAB 7"
 author: "Caroline He"
 date: "10/29/2021"
-output: 
-  github_document:
-    html_preview: false
-  html_document:
-    html_preview: false
-  always_allow_html: true
+output: github_document
+
 ---
 
 ```{r setup, include=FALSE}
@@ -100,7 +96,7 @@ my_boot <- function(dat, stat, R, ncpus = 1L) {
   ans <- do.call(rbind, ans)
   
   # STEP 4: GOES HERE
-  
+  g
   ans
   
 }
