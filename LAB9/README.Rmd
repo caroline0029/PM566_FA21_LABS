@@ -25,7 +25,6 @@ In this lab, you are expected to learn/put in practice the following skills:
 library(microbenchmark)
 ```
 
-
 1. This function generates a n x k dataset with all its entries distributed poission with mean lambda.
 ```{r}
 # create matrix filling by rows
