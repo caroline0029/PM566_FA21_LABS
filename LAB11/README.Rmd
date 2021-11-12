@@ -2,7 +2,7 @@
 title: "LAB11"
 author: "Caroline He"
 date: "11/12/2021"
-output: html_document
+output: github_document
 always_allow_html: true
 ---
 
@@ -414,7 +414,3 @@ fig_Today <- fig
 ### Plot together 
 subplot(fig_pick.date, fig_Today, nrows = 2, margin = .05)
 ```
-
-
-
-
