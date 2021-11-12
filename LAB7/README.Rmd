@@ -122,6 +122,7 @@ publications <- GET(
 # Turning the output into character vector
 publications <- httr::content(publications)
 publications_txt <- as.character(publications)
+publications_txt
 ```
 
 ### Question 4: Distribution of universities, schools, and departments
