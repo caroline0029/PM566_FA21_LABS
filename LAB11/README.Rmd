@@ -2,9 +2,11 @@
 title: "LAB11"
 author: "Caroline He"
 date: "11/12/2021"
-output: github_document
+output: html_document
 always_allow_html: true
 ---
+
+**Here is my lab output** [**here**](https://ghcdn.rawgit.org/caroline0029/PM566_FA21_Labs/main/LAB11/README.html)
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
